@@ -33,7 +33,7 @@ add_subdirectory(external/eigen)
 #################################
 #       Build Vessel Library    #
 #################################
-add_library( vessel_lib STATIC ${VESSEL_SRC} ${VESSEL_HDR} )
+add_library( vessel_lib SHARED ${VESSEL_SRC} ${VESSEL_HDR} )
 
 target_link_libraries( vessel_lib PUBLIC glm_static eigen )
 
