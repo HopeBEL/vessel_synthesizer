@@ -1,15 +1,17 @@
-# Blood-vessel Synthesizer
+# Blood-Vessel Synthesizer
 
-This repository contains the implementation of the blood-vessel tree generator as outlined in the paper:   
+This repository contains the implementation of the blood-vessel tree generator as outlined in our paper:   
 :books: [Rauch N., Harders M., *Interactive Synthesis of 3D Geometries of Blood Vessels*, Eurographics 2021](https://diglib.eg.org/items/9e8cfe4d-b01a-4665-b3ab-f6e1857b40ee)
 
 ![example](img/example_banner.png)
 
 The synthesizer emulates the abstract behavior of *angiogenesis* - a growth process in which blood vessels develop by elongating and branching from pre-existing vasculature to reach tissue devoid of any vasculature.
-This mechanism resembles the competiton for space between individual branches and is modeled by the *space colonization* algorithm.
+The overall mechanism resembles the competiton for space between individual branches and which we modeled by the *space colonization* algorithm.
 During development the geometry of branches and bifurcations are constrained to replicate commonly observed vascular patterns.
 
 ### Build
+
+The synthesizer is implemented as a C++ library, but python-bindings are also provided (enable by cmake option).
 
 ```bash
 $ mkdir build && cd build/
@@ -17,7 +19,7 @@ $ cmake -DCMAKE_BUILD_TYPE=Release ..
 $ cmake --build .
 ```
 
-We provide different compile options:
+The following compile options are available:
 | option    | description |
 | --------  | -------     |
 | VS_PYTHON_BINDINGS   | Build Python Bindings (module)                                 |
