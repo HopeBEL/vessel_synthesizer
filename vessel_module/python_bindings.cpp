@@ -58,7 +58,7 @@ PYBIND11_MODULE(vessel_module, m)
             });
 
     py::class_<vs::domain_circle, vs::domain>(m, "DomainCircle")
-            .def(py::init<const glm::vec3&, float>())
+            .def(py::init<const glm::vec3&, float, const glm::vec3&, float >())
             .def("seed", &vs::domain_circle::seed)
             .def("min_extends", &vs::domain_circle::min_extends)
             .def("max_extends", &vs::domain_circle::max_extends)
@@ -68,7 +68,17 @@ PYBIND11_MODULE(vessel_module, m)
                 std::vector<glm::vec3> _samples;
                 self.samples(_samples, count);
                 return _samples;
+            })
+            .def("add_repulsive_points", &vs::domain_circle::add_repulsive_points)
+            .def("dump_logs", [](vs::domain_circle& self) {
+                std::string test;
+
+                if (!self.m_logs.empty())
+                    test = self.m_logs;
+                else test = "empty";
+                return test;
             });
+
 
     py::class_<vs::domain_sphere, vs::domain>(m, "DomainSphere")
             .def(py::init<const glm::vec3&, float>())
@@ -78,6 +88,18 @@ PYBIND11_MODULE(vessel_module, m)
             .def("sample", &vs::domain_sphere::sample)
             .def("samples", [](vs::domain& self, unsigned int count)
             {
+                std::vector<glm::vec3> _samples;
+                self.samples(_samples, count);
+                return _samples;
+            });
+
+    py::class_<vs::domain_halfsphere, vs::domain>(m, "DomainHalfSphere")
+            .def(py::init<const glm::vec3&, float>())
+            .def("seed", &vs::domain_halfsphere::seed)
+            .def("min_extends", &vs::domain_halfsphere::min_extends)
+            .def("max_extends", &vs::domain_halfsphere::max_extends)
+            .def("sample", &vs::domain_halfsphere::sample)
+            .def("samples", [](vs::domain& self, unsigned int count){
                 std::vector<glm::vec3> _samples;
                 self.samples(_samples, count);
                 return _samples;
