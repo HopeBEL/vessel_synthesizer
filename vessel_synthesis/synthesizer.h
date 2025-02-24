@@ -126,6 +126,7 @@ struct synthesizer
             float m_kill_attr{0.03f};
             float m_growth_distance{0.03f};
 
+            float repulsive_threshold{0.5f};
             float m_scaling{1.0};
         } m_system[2];
     };

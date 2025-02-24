@@ -19,12 +19,14 @@ namespace vs
  */
 struct domain
 {
+    //public: std::string m_logs;
     virtual ~domain() = default;
 
     virtual void seed(unsigned int number) = 0;
     virtual glm::vec3 sample() = 0;
     virtual glm::vec3 min_extends() const = 0;
     virtual glm::vec3 max_extends() const = 0;
+    //virtual void dump_logs(std::string log_msg);
 
     void samples(std::vector<glm::vec3>& points, std::size_t count);
 };
@@ -35,18 +37,23 @@ struct domain_circle : public domain
 private:
     glm::vec3 m_center;
     float m_radius;
-
+    glm::vec3 m_deadZonePos;
     std::mt19937 m_generator;
     std::uniform_real_distribution<float> m_distribution;
 
 public:
-    domain_circle(const glm::vec3& center = {0.0, 0.0, 0.0}, float radius = 1.0f);
+    domain_circle(const glm::vec3& center = {0.0, 0.0, 0.0}, float radius = 1.0f, const glm::vec3& deadZonePos = {0.5, 0.0, 0.0}, float deadZoneRadius = 0.3f);
     ~domain_circle() = default;
 
+    std::string m_logs = "Test";
+    float m_deadZoneRadius = 0.1f;
+    std::vector<glm::vec3> m_repulsive_points;
     void seed(unsigned int number = 42) override;
     glm::vec3 sample() override;
     virtual glm::vec3 min_extends() const override;
     virtual glm::vec3 max_extends() const override;
+    //virtual void dump_logs(std::string log_msg) override;
+    void add_repulsive_points(glm::vec3 repulsive_points);
 };
 
 
@@ -63,12 +70,60 @@ private:
 public:
     domain_sphere(const glm::vec3& center = {0.0, 0.0, 0.0}, float radius = 1.0f);
     ~domain_sphere() = default;
+    
+    //std::string m_logs;
+    void seed(unsigned int number = 42) override;
+    glm::vec3 sample() override;
+    virtual glm::vec3 min_extends() const override;
+    virtual glm::vec3 max_extends() const override;
+    //virtual void dump_logs(std::string log_msg) override;
+};
+
+struct domain_halfsphere : public domain
+{
+private:
+    glm::vec3 m_center;
+    float m_radius;
+
+    std::mt19937 m_generator;
+    std::uniform_real_distribution<float> m_uniform_distribution;
+    std::normal_distribution<float> m_normal_distribution;
+
+public:
+    domain_halfsphere(const glm::vec3& center = {0.0, 0.0, 0.0}, float radius = 1.0f);
+    ~domain_halfsphere() = default;
 
     void seed(unsigned int number = 42) override;
     glm::vec3 sample() override;
     virtual glm::vec3 min_extends() const override;
     virtual glm::vec3 max_extends() const override;
 };
+
+/*struct domain_lines_half_sphere : public domain
+{
+private:
+    glm::vec3 m_center;
+    float m_radius;
+    std::vector<glm::vec3> m_start;
+    std::vector<glm::vec3> m_end;
+
+    float m_deviation;
+    glm::vec3 m_min;
+    glm::vec3 m_max;
+    std::mt19937 m_generator;
+    std::uniform_real_distribution<float> m_distribution;
+    std::uniform_real_distribution<float> m_uniform_distribution;
+    std::normal_distribution<float> m_normal_distribution;
+
+public:
+    domain_lines_half_sphere(const glm::vec3& center, float radius, const std::vector<glm::vec3>& start, const std::vector<glm::vec3>& end, float deviation);
+    ~domain_lines_half_sphere() = default;
+
+    void seed(unsigned int number = 42) override;
+    glm::vec3 sample() override;
+    virtual glm::vec3 min_extends() const override;
+    virtual glm::vec3 max_extends() const override;
+};*/
 
 /*
  * ******************** [line domain] ********************
