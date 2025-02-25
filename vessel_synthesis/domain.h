@@ -19,16 +19,18 @@ namespace vs
  */
 struct domain
 {
-    //public: std::string m_logs;
+    public: std::string m_logs = "Test domain";
     virtual ~domain() = default;
 
     virtual void seed(unsigned int number) = 0;
     virtual glm::vec3 sample() = 0;
+    virtual glm::vec3 sample_first_steps() = 0;
     virtual glm::vec3 min_extends() const = 0;
     virtual glm::vec3 max_extends() const = 0;
     //virtual void dump_logs(std::string log_msg);
 
     void samples(std::vector<glm::vec3>& points, std::size_t count);
+    void samples_first_steps(std::vector<glm::vec3>& points, std::size_t count);
 };
 
 
@@ -45,11 +47,12 @@ public:
     domain_circle(const glm::vec3& center = {0.0, 0.0, 0.0}, float radius = 1.0f, const glm::vec3& deadZonePos = {0.5, 0.0, 0.0}, float deadZoneRadius = 0.3f);
     ~domain_circle() = default;
 
-    std::string m_logs = "Test";
+    //std::string m_logs = "Test";
     float m_deadZoneRadius = 0.1f;
     std::vector<glm::vec3> m_repulsive_points;
     void seed(unsigned int number = 42) override;
     glm::vec3 sample() override;
+    glm::vec3 sample_first_steps() override;
     virtual glm::vec3 min_extends() const override;
     virtual glm::vec3 max_extends() const override;
     //virtual void dump_logs(std::string log_msg) override;
@@ -74,8 +77,10 @@ public:
     //std::string m_logs;
     void seed(unsigned int number = 42) override;
     glm::vec3 sample() override;
+    glm::vec3 sample_first_steps() override;
     virtual glm::vec3 min_extends() const override;
     virtual glm::vec3 max_extends() const override;
+    
     //virtual void dump_logs(std::string log_msg) override;
 };
 
@@ -95,6 +100,7 @@ public:
 
     void seed(unsigned int number = 42) override;
     glm::vec3 sample() override;
+    glm::vec3 sample_first_steps() override;
     virtual glm::vec3 min_extends() const override;
     virtual glm::vec3 max_extends() const override;
 };
@@ -149,6 +155,7 @@ public:
 
     void seed(unsigned int number = 42) override;
     glm::vec3 sample() override;
+    glm::vec3 sample_first_steps() override;
     virtual glm::vec3 min_extends() const override;
     virtual glm::vec3 max_extends() const override;
 };
@@ -177,6 +184,7 @@ public:
 
     void seed(unsigned int number = 42) override;
     glm::vec3 sample() override;
+    glm::vec3 sample_first_steps() override;
     virtual glm::vec3 min_extends() const override;
     virtual glm::vec3 max_extends() const override;
 
