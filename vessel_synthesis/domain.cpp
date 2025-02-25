@@ -26,9 +26,19 @@ void domain::samples(std::vector<glm::vec3> &points, std::size_t count)
     }
 }
 
+void domain::samples_first_steps(std::vector<glm::vec3> &points, std::size_t count)
+{
+    points.resize(count);
+    for(auto& p : points)
+    {
+        p = sample_first_steps();
+    }
+}
+
+
 domain_circle::domain_circle(const glm::vec3 &center, float radius, const glm::vec3 &deadZonePos, float deadZoneRadius)
     : m_center(center), m_radius(radius), m_deadZonePos(deadZonePos), m_deadZoneRadius(deadZoneRadius),
-      m_generator(42), m_distribution(0.0, 1.0), m_logs("Test")
+      m_generator(42), m_distribution(0.0, 1.0)
 {
 
 }
@@ -55,6 +65,36 @@ glm::vec3 domain_circle::sample()
     //    return pos;
     //}
     //else return { 0.0, 0.0, 0.0};
+}
+
+glm::vec3 domain_circle::sample_first_steps() {
+    float r = m_radius * std::sqrt(m_distribution(m_generator));
+
+    std::vector<glm::vec3> main_directions = {
+        {0.2f, 1.0f, 0.0f},
+        {0.2f, -1.0f, 0.0f},
+        {-0.2f, 1.0f, 0.0f},
+        {-0.2f, -1.0f, 0.0f}
+    };
+
+    //std::vector<float> angles = { glm::radians(45.f), glm::radians(315.f), glm::radians(240.f), glm::radians(110.f)};
+
+    std::uniform_int_distribution<int> distr(0, main_directions.size() - 1);
+    //std::uniform_int_distribution<int> distr_angles(0, angles.size() - 1);
+    int randomIndex = distr(m_generator);
+    //int randomIndex_angles = distr_angles(m_generator);
+
+    // Some disturbance to not have such a linear line
+    // -0.5 to go from [0, 1] to [-0.5, 0.5]
+    //float disturb_x = (m_distribution(m_generator) - 0.5f) * 0.1;
+    //float disturb_y = (m_distribution(m_generator) - 0.5f) * 0.1;
+    glm::vec3 pos = glm::vec3{m_center.x +  r * main_directions[randomIndex].x, m_center.y + r * main_directions[randomIndex].y, 0.0};
+
+    //glm::vec3 pos_angles = glm::vec3{m_center.x + r * cos(angles[randomIndex_angles]), m_center.y + r * sin(angles[randomIndex_angles]), 0.0f};
+    //m_logs += "x:  " + std::to_string(pos.x) + "y:  " + std::to_string(pos.y) + "z:  " + std::to_string(pos.z);
+    //m_logs += "Sampling with angles rather than directions";
+    return pos;
+    //return pos_angles;
 }
 
 // Fills the vector repulsive_points (class attribute) with a new point
@@ -128,17 +168,34 @@ glm::vec3 domain_sphere::sample()
     return m_center + pos * d * m_radius;
 }
 
+glm::vec3 domain_sphere::sample_first_steps() {
+    glm::vec3 pos = {0.0, 0.0, 0.0};
+
+    return pos;
+}
+
 glm::vec3 domain_halfsphere::sample()
 {
-    glm::vec3 pos =
-    {
-        m_normal_distribution(m_generator),
-        m_normal_distribution(m_generator),
-        std::abs(m_normal_distribution(m_generator))
-    };
+    //glm::vec3 pos =
+    //{
+    //    m_normal_distribution(m_generator),
+    //    m_normal_distribution(m_generator),
+    //    std::abs(m_normal_distribution(m_generator))
+    //};
+//
+    //float d = std::pow( ((m_uniform_distribution(m_generator) + 1.0f) / 2.0f), 1.0f / 3.0f ) / glm::length(pos);
+    //return m_center + pos * d * m_radius;
 
-    float d = std::pow( ((m_uniform_distribution(m_generator) + 1.0f) / 2.0f), 1.0f / 3.0f ) / glm::length(pos);
-    return m_center + pos * d * m_radius;
+    float z = m_uniform_distribution(m_generator);
+    float beta = 2.0f * glm::pi<float>() * m_uniform_distribution(m_generator);
+    float sinTheta = std::sqrt(1.0f - z * z);
+    float x = sinTheta * std::cos(beta);
+    float y = sinTheta * std::sin(beta);
+
+    glm::vec3 pos = glm::vec3(x, y, z) * m_radius;
+    m_logs += "x:  " + std::to_string(pos.x) + "y:  " + std::to_string(pos.y) + "z:  " + std::to_string(pos.z) + "\n";
+    
+    return m_center + pos;
 }
 
 /*glm::vec3 domain_lines_half_sphere::sample()
@@ -191,6 +248,12 @@ glm::vec3 domain_halfsphere::min_extends() const
 glm::vec3 domain_halfsphere::max_extends() const
 {
     return m_center + glm::vec3{m_radius, m_radius, m_radius};
+}
+
+glm::vec3 domain_halfsphere::sample_first_steps() {
+    glm::vec3 pos = {0.0, 0.0, 0.0};
+
+    return pos;
 }
 
 /*glm::vec3 domain_lines_half_sphere::min_extends() const
@@ -274,6 +337,12 @@ glm::vec3 domain_lines::sample()
     return (rotation * sample_circle) + length * m_distribution(m_generator) * dir + m_start[idx];
 }
 
+glm::vec3 domain_lines::sample_first_steps() {
+    glm::vec3 pos = {0.0, 0.0, 0.0};
+
+    return pos;
+}
+
 glm::vec3 domain_lines::min_extends() const
 {
     return m_min - glm::vec3(m_deviation);
@@ -332,6 +401,12 @@ glm::vec3 domain_voxels::sample()
     offset = offset * m_voxel_size;
 
     return sampled_voxel + offset;
+}
+
+glm::vec3 domain_voxels::sample_first_steps() {
+    glm::vec3 pos = {0.0, 0.0, 0.0};
+
+    return pos;
 }
 
 glm::vec3 domain_voxels::min_extends() const

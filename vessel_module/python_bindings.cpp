@@ -55,6 +55,14 @@ PYBIND11_MODULE(vessel_module, m)
                 std::vector<glm::vec3> _samples;
                 self.samples(_samples, count);
                 return _samples;
+            })
+            .def("dump_logs", [](vs::domain& self) {
+                std::string test;
+
+                if (!self.m_logs.empty())
+                    test = self.m_logs;
+                else test = "empty";
+                return test;
             });
 
     py::class_<vs::domain_circle, vs::domain>(m, "DomainCircle")
@@ -69,15 +77,7 @@ PYBIND11_MODULE(vessel_module, m)
                 self.samples(_samples, count);
                 return _samples;
             })
-            .def("add_repulsive_points", &vs::domain_circle::add_repulsive_points)
-            .def("dump_logs", [](vs::domain_circle& self) {
-                std::string test;
-
-                if (!self.m_logs.empty())
-                    test = self.m_logs;
-                else test = "empty";
-                return test;
-            });
+            .def("add_repulsive_points", &vs::domain_circle::add_repulsive_points);
 
 
     py::class_<vs::domain_sphere, vs::domain>(m, "DomainSphere")

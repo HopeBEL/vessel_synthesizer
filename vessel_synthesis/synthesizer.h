@@ -126,7 +126,7 @@ struct synthesizer
             float m_kill_attr{0.03f};
             float m_growth_distance{0.03f};
 
-            float repulsive_threshold{0.5f};
+            float repulsive_threshold{0.1f};
             float m_scaling{1.0};
         } m_system[2];
     };
@@ -173,7 +173,7 @@ public:
 
     tree::node& create_root(const system sys, const glm::vec3& pos);
     void create_attr(const system sys, const glm::vec3& pos);
-    void try_attr(const system sys, const glm::vec3& pos);
+    void try_attr(const system sys, const glm::vec3& pos, int& i);
 
     void run();
 
