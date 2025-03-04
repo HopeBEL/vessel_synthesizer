@@ -288,7 +288,7 @@ void synthesizer::sample_attraction()
     profile_sample(step_closest, get_system_data(system::arterial).m_profiler);
     std::vector<glm::vec3> points;
 
-    if (m_params.m_curr_step < 10) {
+    if (m_params.m_curr_step < 50) {
         for(unsigned int i = 0; i < static_cast<int>(system::count); i++) m_params.m_system[i].m_influence_attr = 10.f;
         m_domain.get().samples_first_steps(points, get_settings().m_sample_count);
     }

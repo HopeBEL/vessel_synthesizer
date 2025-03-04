@@ -53,11 +53,11 @@ struct settings
     {
         float m_parent_inertia{0.5f};
 
-        float m_birth_attr{0.03f};
+        float m_birth_attr{0.04f};
         float m_birth_node{0.04f};
 
         float m_influence_attr{0.065f};
-        float m_kill_attr{0.03f};
+        float m_kill_attr{0.06f};
         float m_percept_vol{90.0f};
 
         float m_term_radius{0.0005f};
@@ -126,7 +126,7 @@ struct synthesizer
             float m_kill_attr{0.03f};
             float m_growth_distance{0.03f};
 
-            float repulsive_threshold{0.1f};
+            float repulsive_threshold{0.25f};
             float m_scaling{1.0};
         } m_system[2];
     };
