@@ -9,6 +9,9 @@
 #include <stack>
 #include <queue>
 #include <variant>
+#include "domain.h"
+#include <string>
+
 
 namespace vs
 {
@@ -24,7 +27,7 @@ struct binary_tree
     private:
         node_id m_id{not_a_node};
         node_id m_parent{not_a_node};
-        std::array<node_id, 2> m_children{not_a_node, not_a_node};
+        std::array<node_id, 4> m_children{not_a_node, not_a_node, not_a_node, not_a_node};
         Data m_data;
 
     public:
@@ -39,7 +42,7 @@ struct binary_tree
 
         node_id id() const { return m_id; }
         node_id parent() const { return m_parent; }
-        std::array<node_id, 2> children() const { return m_children; }
+        std::array<node_id, 4> children() const { return m_children; }
 
         Data& data() { return m_data; }
         const Data& data() const { return m_data; }
@@ -68,14 +71,15 @@ public:
     }
 
     template<typename ...Args>
-    node& create_node(const node_id parent, Args&&... args)
+    node& create_node(const node_id parent, domain& domain_, Args&&... args)
     {
         assert(exists(parent));
 
         auto id = m_next_id++;
+        domain_.m_logs += "Test create_node with parent : " + std::to_string(parent) + " and child id is now : " + std::to_string(id) + "\n";
         auto [iter, _] = m_nodes.emplace(id, node(id, parent, std::move(args)...));
 
-        attach_node(parent, iter->second);
+        attach_node(parent, domain_, iter->second);
 
         return iter->second;
     }
@@ -151,6 +155,9 @@ public:
             auto children_ids = curr_node.children();
             if(children_ids[0] != not_a_node) queue.push(children_ids[0]);
             if(children_ids[1] != not_a_node) queue.push(children_ids[1]);
+            if(children_ids[2] != not_a_node) queue.push(children_ids[2]);
+            if(children_ids[3] != not_a_node) queue.push(children_ids[3]);
+            
         }
     }
 
@@ -287,13 +294,25 @@ private:
         del_node.m_parent = not_a_node;
     }
 
-    void attach_node(const node_id parent, node& child)
+    void attach_node(const node_id parent, domain& domain_, node& child)
     {
         auto& parent_node = get_node(parent);
-        assert(!parent_node.is_joint());
+        if (parent == m_root_id) {
+            domain_.m_logs += "Called attach from root\n";
+            for (int i = 0; i < 4; i++) {
+                if (parent_node.m_children[i] == not_a_node) {
+                    parent_node.m_children[i] = child.id();
+                    domain_.m_logs += "Attach_node : added child to " + std::to_string(parent) + " child id " + std::to_string(child.id()) + "\n"; 
+                    return;
+                }
+            }
+        }
+        else {
+            assert(!parent_node.is_joint());
 
-        if(parent_node.m_children[0] == not_a_node) { parent_node.m_children[0] = child.id(); }
-        else if(parent_node.m_children[1] == not_a_node) { parent_node.m_children[1] = child.id(); }
+            if(parent_node.m_children[0] == not_a_node) { parent_node.m_children[0] = child.id(); }
+            else if(parent_node.m_children[1] == not_a_node) { parent_node.m_children[1] = child.id(); }
+        }
     }
 };
 
