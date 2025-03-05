@@ -492,8 +492,8 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                     glm::vec3 new_pos_r = node->data().m_pos + params.m_growth_distance * glm::normalize(right);
             
                     if (glm::length(new_pos_l - repulsive_point) > params.repulsive_threshold && glm::length(new_pos_r - repulsive_point) > params.repulsive_threshold) {
-                        auto& end_l = tree->create_node(node->id(), node->data().m_pos + params.m_growth_distance * glm::normalize(left), radius_l, tree);
-                        auto& end_r = tree->create_node(node->id(), node->data().m_pos + params.m_growth_distance * glm::normalize(right), radius_r, tree);
+                        auto& end_l = tree->create_node(node->id(), m_domain.get(), node->data().m_pos + params.m_growth_distance * glm::normalize(left), radius_l, tree);
+                        auto& end_r = tree->create_node(node->id(), m_domain.get(), node->data().m_pos + params.m_growth_distance * glm::normalize(right), radius_r, tree);
                         auto recalc_radii = [&sett, tree] (auto& node)
                         {
                             if(node.is_inter())
@@ -513,14 +513,14 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                         data.m_node_search.insert(end_l.data().m_pos, &end_l);
                         data.m_node_search.insert(end_r.data().m_pos, &end_r);
                         //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Creating nodes end_l and end_r";
-                        m_domain.get().m_logs += "Creating nodes end_l and end_r";
+                        //m_domain.get().m_logs += "Creating nodes end_l and end_r";
                     }
 
                 }
             }
             else {
-                auto& end_l = tree->create_node(node->id(), node->data().m_pos + params.m_growth_distance * glm::normalize(left), radius_l, tree);
-                auto& end_r = tree->create_node(node->id(), node->data().m_pos + params.m_growth_distance * glm::normalize(right), radius_r, tree);
+                auto& end_l = tree->create_node(node->id(), m_domain.get(), node->data().m_pos + params.m_growth_distance * glm::normalize(left), radius_l, tree);
+                auto& end_r = tree->create_node(node->id(), m_domain.get(), node->data().m_pos + params.m_growth_distance * glm::normalize(right), radius_r, tree);
                 auto recalc_radii = [&sett, tree] (auto& node)
                 {
                     if(node.is_inter())
@@ -538,13 +538,59 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                 data.m_node_search.insert(end_l.data().m_pos, &end_l);
                 data.m_node_search.insert(end_r.data().m_pos, &end_r);
                 //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Creating nodes end_l and end_r";
-                m_domain.get().m_logs += "Creating nodes end_l and end_r";
+                //m_domain.get().m_logs += "Creating nodes end_l and end_r";
             }
         }
         /* elongate from a leaf or develop a new lateral sprout */
         else if( !sett.m_only_leaf_development || (node->is_leaf() || node->is_inter()) )
         {
-            if(node->is_root() && node->is_inter()) { continue; } // TODO: currently force root to only have one child
+            //if(node->is_root() && node->is_inter()) { continue; } // TODO: currently force root to only have one child
+            if (node->is_root() && m_params.m_curr_step <= 1005) {
+                auto* tree = node->data().m_tree;
+
+                glm::vec3 top_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(-1,1,0));
+                auto& node_top = tree->create_node(node->id(), m_domain.get(), top_pos, sett.m_term_radius, tree);
+
+                glm::vec3 bot_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(-1,-1,0));
+                auto& node_bot = tree->create_node(node->id(), m_domain.get(), bot_pos, sett.m_term_radius, tree);
+
+                glm::vec3 top_right_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(1,1,0));
+                auto& node_top_right = tree->create_node(node->id(), m_domain.get(), top_right_pos, sett.m_term_radius, tree);
+
+                glm::vec3 top_bot_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(1,-1,0));
+                auto& node_top_bot = tree->create_node(node->id(), m_domain.get(), top_bot_pos, sett.m_term_radius, tree);
+
+                auto recalc_radii = [&sett, tree] (auto& node)
+                        {
+                            if(node.is_inter())
+                            {
+                                node.data().m_radius = tree->get_node(node.children()[0]).data().m_radius;
+                            }
+                            else if(node.is_joint())
+                            {
+                                auto& child_0 = node.data().m_tree->get_node(node.children()[0]);
+                                auto& child_1 = node.data().m_tree->get_node(node.children()[1]);
+                                node.data().m_radius = law::murray_radius(child_0.data().m_radius, child_1.data().m_radius, sett.m_bif_index);
+                            }
+                        };
+                tree->to_root(recalc_radii, node->id());
+
+                data.m_node_search.insert(node_top.data().m_pos, &node_top);
+                data.m_node_search.insert(node_bot.data().m_pos, &node_bot);
+                data.m_node_search.insert(node_top_right.data().m_pos, &node_top_right);
+                data.m_node_search.insert(node_top_bot.data().m_pos, &node_top_bot);
+
+                int childrenCount = 0;
+                for (int i = 0; i < 4; i++) {
+                    if (node->children()[i] != not_a_node) {
+                        childrenCount++;
+                        m_domain.get().m_logs += "Child id " + std::to_string(i) + " : " + std::to_string(node->children()[i]) + "\n"; 
+                    }
+                }
+                m_domain.get().m_logs += "Added this number of nodes to root : " + std::to_string(childrenCount) + "\n";
+
+
+            }
 
             profile_sample(growth_sprout, data.m_profiler);
 
@@ -560,7 +606,7 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                         if (glm::length(new_pos - rep_point) > params.repulsive_threshold) {
                             //circle_domain->m_logs += " + Doing this right now " + std::to_string(i);
                             i++;
-                            auto& end = tree->create_node(node->id(), new_pos, sett.m_term_radius, tree);
+                            auto& end = tree->create_node(node->id(), m_domain.get(), new_pos, sett.m_term_radius, tree);
 
                             auto recalc_radii = [&sett, tree] (auto& node)
                             {
@@ -580,13 +626,13 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
 
                             data.m_node_search.insert(end.data().m_pos, &end);
                             //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Creating node end";
-                            m_domain.get().m_logs += "Creating nodes end_l and end_r";
+                            //m_domain.get().m_logs += "Creating nodes end_l and end_r";
                         }
                     }
                 }
             }
             else {
-                auto& end = tree->create_node(node->id(), new_pos, sett.m_term_radius, tree);
+                auto& end = tree->create_node(node->id(), m_domain.get(), new_pos, sett.m_term_radius, tree);
 
                 auto recalc_radii = [&sett, tree] (auto& node)
                 {
