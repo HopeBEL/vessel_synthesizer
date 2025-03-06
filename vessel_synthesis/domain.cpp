@@ -77,7 +77,7 @@ glm::vec3 domain_circle::sample_first_steps() {
         {-0.2f, -1.0f, 0.0f}
     };
 
-    std::vector<float> angles = { glm::radians(45.f), glm::radians(270.f), glm::radians(90.f), glm::radians(300.f)};
+    std::vector<float> angles = { glm::radians(45.f), glm::radians(240.f), glm::radians(120.f), glm::radians(300.f)};
 
     std::uniform_int_distribution<int> distr(0, main_directions.size() - 1);
     std::uniform_int_distribution<int> distr_angles(0, angles.size() - 1);
@@ -88,7 +88,7 @@ glm::vec3 domain_circle::sample_first_steps() {
     // -0.5 to go from [0, 1] to [-0.5, 0.5]
     //float disturb_x = (m_distribution(m_generator) - 0.5f) * 0.1;
     //float disturb_y = (m_distribution(m_generator) - 0.5f) * 0.1;
-    glm::vec3 pos = glm::vec3{m_center.x +  r * main_directions[randomIndex].x, m_center.y + r * main_directions[randomIndex].y, 0.0};
+    glm::vec3 pos = glm::vec3{m_center.x + 0.4f + r * main_directions[randomIndex].x, m_center.y + r * main_directions[randomIndex].y, 0.0};
 
     glm::vec3 pos_angles = glm::vec3{m_center.x + r * cos(angles[randomIndex_angles]), m_center.y + r * sin(angles[randomIndex_angles]), 0.0f};
     //m_logs += "x:  " + std::to_string(pos.x) + "y:  " + std::to_string(pos.y) + "z:  " + std::to_string(pos.z);
