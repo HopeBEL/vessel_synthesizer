@@ -390,6 +390,11 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
     auto& params = get_system_parameter(sys);
     auto& sett = get_system_settings(sys);
 
+    std::uniform_real_distribution<float> random_probability(0.f, 1.f);
+    std::random_device rd;
+    std::mt19937 m_generator(rd());
+
+
     profile_sample(step_growth, data.m_profiler);
     //m_domain.get().m_logs += "ici";
     for(const auto& attr_pair : attr_map)
@@ -491,7 +496,16 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                     glm::vec3 new_pos_l = node->data().m_pos + params.m_growth_distance * glm::normalize(left);
                     glm::vec3 new_pos_r = node->data().m_pos + params.m_growth_distance * glm::normalize(right);
             
-                    if (glm::length(new_pos_l - repulsive_point) > params.repulsive_threshold && glm::length(new_pos_r - repulsive_point) > params.repulsive_threshold) {
+                    if (glm::length(new_pos_l - repulsive_point) < params.repulsive_threshold / 2 && glm::length(new_pos_r - repulsive_point) < params.repulsive_threshold / 2) {
+                        continue;
+                    }
+
+                    if (glm::length(new_pos_l - repulsive_point) < params.repulsive_threshold && glm::length(new_pos_r - repulsive_point) < params.repulsive_threshold) {
+                        float probability = 0.5f;
+                        if (random_probability(m_generator) < probability) {
+                            continue;
+                        }
+                    }
                         auto& end_l = tree->create_node(node->id(), m_domain.get(), node->data().m_pos + params.m_growth_distance * glm::normalize(left), radius_l, tree);
                         auto& end_r = tree->create_node(node->id(), m_domain.get(), node->data().m_pos + params.m_growth_distance * glm::normalize(right), radius_r, tree);
                         auto recalc_radii = [&sett, tree] (auto& node)
@@ -514,8 +528,6 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                         data.m_node_search.insert(end_r.data().m_pos, &end_r);
                         //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Creating nodes end_l and end_r";
                         //m_domain.get().m_logs += "Creating nodes end_l and end_r";
-                    }
-
                 }
             }
             else {
@@ -603,7 +615,16 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                 const auto& repulsive_points = circle_domain->m_repulsive_points;
                 if (repulsive_points.size() > 0) {
                     for (const auto& rep_point : repulsive_points) {
-                        if (glm::length(new_pos - rep_point) > params.repulsive_threshold) {
+                        if (glm::length(new_pos - rep_point) < params.repulsive_threshold / 2) {
+                            continue;
+                        }
+
+                        if (glm::length(new_pos - rep_point) < params.repulsive_threshold) {
+                            float probability = 0.5f;
+                            if (random_probability(m_generator) < probability) {
+                                continue;
+                            }
+                        }
                             //circle_domain->m_logs += " + Doing this right now " + std::to_string(i);
                             i++;
                             auto& end = tree->create_node(node->id(), m_domain.get(), new_pos, sett.m_term_radius, tree);
@@ -627,7 +648,6 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                             data.m_node_search.insert(end.data().m_pos, &end);
                             //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Creating node end";
                             //m_domain.get().m_logs += "Creating nodes end_l and end_r";
-                        }
                     }
                 }
             }
