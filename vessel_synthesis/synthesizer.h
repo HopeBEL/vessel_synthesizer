@@ -57,19 +57,19 @@ struct settings
         float m_birth_node{0.04f};
 
         float m_influence_attr{0.065f};
-        float m_kill_attr{0.8f};
+        float m_kill_attr{0.03f};
         float m_percept_vol{90.0f};
 
         float m_term_radius{0.0005f};
-        float m_growth_distance{0.02f};
+        float m_growth_distance{0.03f};
 
         float m_bif_thresh{15.0f};
-        float m_bif_index{2.1f};
+        float m_bif_index{2.35f};
 
         struct
         {
             grow_func m_type{grow_func::linear};
-            float m_value{0.02};
+            float m_value{0.007};
         } m_grow_func;
 
         /* constraints */
