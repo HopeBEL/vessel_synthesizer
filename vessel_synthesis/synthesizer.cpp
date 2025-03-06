@@ -288,7 +288,7 @@ void synthesizer::sample_attraction()
     profile_sample(step_closest, get_system_data(system::arterial).m_profiler);
     std::vector<glm::vec3> points;
 
-    if (m_params.m_curr_step < 50) {
+    if (m_params.m_curr_step < 10) {
         for(unsigned int i = 0; i < static_cast<int>(system::count); i++) m_params.m_system[i].m_influence_attr = 10.f;
         m_domain.get().samples_first_steps(points, get_settings().m_sample_count);
     }
@@ -404,15 +404,15 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
         });
         //dir = glm::normalize(dir);
 
-        if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) {
-            const auto& repulsive_points = circle_domain->m_repulsive_points;
-            //circle_domain->m_logs = std::to_string(repulsive_points.size());
-            //circle_domain->m_logs = std::to_string(attr_list.size());
-            for (const auto& rep_point : repulsive_points) {
-                glm::vec3 repulsion_dir = glm::normalize(node->data().m_pos - rep_point);
-                dir += (repulsion_dir / (static_cast<float>(attr_list.size()) + static_cast<float>(repulsive_points.size())));  // Ajuster le coefficient pour calibrer la force de répulsion
-            }
-        }
+        //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) {
+        //    const auto& repulsive_points = circle_domain->m_repulsive_points;
+        //    //circle_domain->m_logs = std::to_string(repulsive_points.size());
+        //    //circle_domain->m_logs = std::to_string(attr_list.size());
+        //    for (const auto& rep_point : repulsive_points) {
+        //        glm::vec3 repulsion_dir = glm::normalize(node->data().m_pos - rep_point);
+        //        dir += (repulsion_dir / (static_cast<float>(attr_list.size()) + static_cast<float>(repulsive_points.size())));  // Ajuster le coefficient pour calibrer la force de répulsion
+        //    }
+        //}
         dir = glm::normalize(dir);
 
         /* collect bias direction and detect if bifurcation development is preferred */
