@@ -288,7 +288,7 @@ void synthesizer::sample_attraction()
     profile_sample(step_closest, get_system_data(system::arterial).m_profiler);
     std::vector<glm::vec3> points;
 
-    if (m_params.m_curr_step < 10) {
+    if (m_params.m_curr_step < 5) {
         for(unsigned int i = 0; i < static_cast<int>(system::count); i++) m_params.m_system[i].m_influence_attr = 10.f;
         m_domain.get().samples_first_steps(points, get_settings().m_sample_count);
     }
@@ -560,10 +560,10 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
             if (node->is_root() && m_params.m_curr_step <= 1005) {
                 auto* tree = node->data().m_tree;
 
-                glm::vec3 top_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(-1,1,0));
+                glm::vec3 top_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(0,1,0));
                 auto& node_top = tree->create_node(node->id(), m_domain.get(), top_pos, sett.m_term_radius, tree);
 
-                glm::vec3 bot_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(-1,-1,0));
+                glm::vec3 bot_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(0,-1,0));
                 auto& node_bot = tree->create_node(node->id(), m_domain.get(), bot_pos, sett.m_term_radius, tree);
 
                 glm::vec3 top_right_pos = node->data().m_pos + params.m_growth_distance * glm::normalize(glm::vec3(1,1,0));
