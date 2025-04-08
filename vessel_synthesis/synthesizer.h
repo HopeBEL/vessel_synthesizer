@@ -127,6 +127,8 @@ struct synthesizer
             float m_growth_distance{0.03f};
 
             float repulsive_threshold{0.25f};
+            //float repulsive_threshold{0.0f};
+
             float m_scaling{1.0};
         } m_system[2];
     };
