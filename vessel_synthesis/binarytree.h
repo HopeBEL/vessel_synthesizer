@@ -76,7 +76,7 @@ public:
         assert(exists(parent));
 
         auto id = m_next_id++;
-        domain_.m_logs += "Test create_node with parent : " + std::to_string(parent) + " and child id is now : " + std::to_string(id) + "\n";
+        //domain_.m_logs += "Test create_node with parent : " + std::to_string(parent) + " and child id is now : " + std::to_string(id) + "\n";
         auto [iter, _] = m_nodes.emplace(id, node(id, parent, std::move(args)...));
 
         attach_node(parent, domain_, iter->second);
@@ -298,11 +298,11 @@ private:
     {
         auto& parent_node = get_node(parent);
         if (parent == m_root_id) {
-            domain_.m_logs += "Called attach from root\n";
+            //domain_.m_logs += "Called attach from root\n";
             for (int i = 0; i < 4; i++) {
                 if (parent_node.m_children[i] == not_a_node) {
                     parent_node.m_children[i] = child.id();
-                    domain_.m_logs += "Attach_node : added child to " + std::to_string(parent) + " child id " + std::to_string(child.id()) + "\n"; 
+                    //domain_.m_logs += "Attach_node : added child to " + std::to_string(parent) + " child id " + std::to_string(child.id()) + "\n"; 
                     return;
                 }
             }

@@ -36,8 +36,9 @@ void domain::samples_first_steps(std::vector<glm::vec3> &points, std::size_t cou
 }
 
 
-domain_circle::domain_circle(const glm::vec3 &center, float radius, const glm::vec3 &deadZonePos, float deadZoneRadius)
-    : m_center(center), m_radius(radius), m_deadZonePos(deadZonePos), m_deadZoneRadius(deadZoneRadius),
+domain_circle::domain_circle(const glm::vec3 &center, float radius, const glm::vec3 &deadZonePos, float deadZoneRadius, int stepNoCrossing, int stepBreakCrossingArtery, int stepBreakCrossingVein)
+    : m_center(center), m_radius(radius), m_deadZonePos(deadZonePos), m_deadZoneRadius(deadZoneRadius), m_stepNoCrossing(stepNoCrossing), m_stepBreakCrossingArtery(stepBreakCrossingArtery), 
+    m_stepBreakCrossingVein(stepBreakCrossingVein), m_crossingPointsBifurc{}, m_crossingPointsSingle{}, m_crossingPointsBifurcNew{}, m_crossingPointsSingleNew{},
       m_generator(42), m_distribution(0.0, 1.0)
 {
 
@@ -193,7 +194,7 @@ glm::vec3 domain_halfsphere::sample()
     float y = sinTheta * std::sin(beta);
 
     glm::vec3 pos = glm::vec3(x, y, z) * m_radius;
-    m_logs += "x:  " + std::to_string(pos.x) + "y:  " + std::to_string(pos.y) + "z:  " + std::to_string(pos.z) + "\n";
+    //m_logs += "x:  " + std::to_string(pos.x) + "y:  " + std::to_string(pos.y) + "z:  " + std::to_string(pos.z) + "\n";
     
     return m_center + pos;
 }

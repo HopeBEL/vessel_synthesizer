@@ -66,7 +66,7 @@ PYBIND11_MODULE(vessel_module, m)
             });
 
     py::class_<vs::domain_circle, vs::domain>(m, "DomainCircle")
-            .def(py::init<const glm::vec3&, float, const glm::vec3&, float >())
+            .def(py::init<const glm::vec3&, float, const glm::vec3&, float, int, int, int >())
             .def("seed", &vs::domain_circle::seed)
             .def("min_extends", &vs::domain_circle::min_extends)
             .def("max_extends", &vs::domain_circle::max_extends)
@@ -77,7 +77,22 @@ PYBIND11_MODULE(vessel_module, m)
                 self.samples(_samples, count);
                 return _samples;
             })
-            .def("add_repulsive_points", &vs::domain_circle::add_repulsive_points);
+            .def("add_repulsive_points", &vs::domain_circle::add_repulsive_points)
+            .def("get_crossing_points_bifurc", [](vs::domain_circle& self) {
+                return self.m_crossingPointsBifurc;
+            })
+            .def("get_crossing_points_single", [](vs::domain_circle& self) {
+                return self.m_crossingPointsSingle;
+            })
+            .def("get_crossing_points_bifurc_new", [](vs::domain_circle& self) {
+                return self.m_crossingPointsBifurcNew;
+            })
+            .def("get_crossing_points_single_new", [](vs::domain_circle& self) {
+                return self.m_crossingPointsSingleNew;
+            })
+
+
+            ;
 
 
     py::class_<vs::domain_sphere, vs::domain>(m, "DomainSphere")
@@ -274,6 +289,8 @@ PYBIND11_MODULE(vessel_module, m)
             .def("create_root", &vs::synthesizer::create_root)
             .def_property("settings", &vs::synthesizer::get_settings, &vs::synthesizer::set_settings)
             .def("run", &vs::synthesizer::run)
+            .def("init", &vs::synthesizer::init_runtime_params)
+            .def("step_by_step", &vs::synthesizer::step_by_step)
             .def("get_arterial_forest", [](vs::synthesizer& self) { return self.get_forest(vs::system::arterial); }, py::return_value_policy::copy)
             .def("get_venous_forest", [](vs::synthesizer& self) { return self.get_forest(vs::system::venous); }, py::return_value_policy::copy)
             .def("set_arterial_forest",  [](vs::synthesizer& self, const vs::synthesizer::forest& trees) { return self.set_forest(vs::system::arterial, trees); })
