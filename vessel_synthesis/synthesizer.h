@@ -61,6 +61,7 @@ struct settings
         float m_percept_vol{90.0f};
 
         float m_term_radius{0.0005f};
+        //float m_growth_distance{0.03f};
         float m_growth_distance{0.03f};
 
         float m_bif_thresh{15.0f};
@@ -178,9 +179,11 @@ public:
     void try_attr(const system sys, const glm::vec3& pos, int& i);
 
     void run();
+    void step_by_step();
+    void init_runtime_params();
+
 
 private:
-    void init_runtime_params();
 
     void step(const system sys);
     void sample_attraction();

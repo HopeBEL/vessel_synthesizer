@@ -44,11 +44,19 @@ private:
     std::uniform_real_distribution<float> m_distribution;
 
 public:
-    domain_circle(const glm::vec3& center = {0.0, 0.0, 0.0}, float radius = 1.0f, const glm::vec3& deadZonePos = {0.5, 0.0, 0.0}, float deadZoneRadius = 0.3f);
+    domain_circle(const glm::vec3& center = {0.0, 0.0, 0.0}, float radius = 1.0f, const glm::vec3& deadZonePos = {0.5, 0.0, 0.0}, float deadZoneRadius = 0.3f, int stepNoCrossing = 0, int stepBreakCrossingArtery = 0, int m_stepBreakCrossingVein = 0);
     ~domain_circle() = default;
 
     //std::string m_logs = "Test";
     float m_deadZoneRadius = 0.1f;
+    int m_stepNoCrossing;
+    int m_stepBreakCrossingArtery;
+    int m_stepBreakCrossingVein;
+    std::vector<glm::vec3> m_crossingPointsBifurc;
+    std::vector<glm::vec3> m_crossingPointsBifurcNew;
+    std::vector<glm::vec3> m_crossingPointsSingle;
+    std::vector<glm::vec3> m_crossingPointsSingleNew;
+
     std::vector<glm::vec3> m_repulsive_points;
     void seed(unsigned int number = 42) override;
     glm::vec3 sample() override;
