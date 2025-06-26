@@ -312,13 +312,7 @@ void synthesizer::init_runtime_params()
 void synthesizer::step(const system sys)
 {
     auto& data = get_system_data(sys);
-    //if (sys == system::venous) {
-    //    m_domain.get().m_logs += "Step with venous system before return\n";
-    //}
-    //if (sys == system::arterial) {
-    //    m_domain.get().m_logs += "Step with arterial system before return\n";
-    //}
-
+  
     if(data.m_forest.trees().empty()) { return; }
 
     profile_sample(step, data.m_profiler);
@@ -333,13 +327,6 @@ void synthesizer::step(const system sys)
 
     /* remove attraction points which are too close */
     step_kill(sys, attr_map);
-
-    //if (sys == system::venous) {
-    //    m_domain.get().m_logs += "Step with venous system after return\n";
-    //}
-    //if (sys == system::arterial) {
-    //    m_domain.get().m_logs += "Step with arterial system after return\n";
-    //}
 
 }
 
@@ -358,24 +345,15 @@ void synthesizer::sample_attraction()
     }
     int i = 0;
     std::for_each(points.begin(), points.end(), [&](const auto& p) { try_attr(system::arterial, p, i); });
-    //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Nombre de points insérés au step " + std::to_string(m_params.m_curr_step) + " : " + std::to_string(i) + " \n";
-    //m_domain.get().m_logs += "Nombre de points insérés au step " + std::to_string(m_params.m_curr_step) + " : " + std::to_string(i) + " \n";
 }
 
 void synthesizer::step_closest(const system sys, std::map<tree::node*, std::list<attr> >& attr_map)
 {
-    //if (sys == system::venous) {
-    //    m_domain.get().m_logs += "Step closest with venous system \n";
-    //}
-    //if (sys == system::arterial) {
-    //    m_domain.get().m_logs += "Step closest with arterial system \n";
-    //}
     auto& data = get_system_data(sys);
     auto& params = get_system_parameter(sys);
     auto& sett = get_system_settings(sys);
 
     profile_sample(step_closest, data.m_profiler);
-    //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "We detect some close nodes !";
 
     /* check all attraction points if they are influence a vessel node */
     std::vector<tree::node*> nodes;
@@ -388,8 +366,6 @@ void synthesizer::step_closest(const system sys, std::map<tree::node*, std::list
             data.m_node_search.euclidean_range(p.m_pos, params.m_influence_attr, nodes);
             if(nodes.empty()) { return; }
         }
-
-        //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "We detect some close nodes !";
 
         float min = std::numeric_limits<float>::max();
         tree::node* min_node = nullptr;
@@ -465,15 +441,6 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
     auto& forest = get_system_data(sys).m_forest;
     glm::vec3 root_pos = forest.trees().front().get_root().data().m_pos;
 
-    
-
-    //if (sys == system::arterial) {
-    //    m_domain.get().m_logs += "rootPos arterial : (" + std::to_string(root_pos.x) + ", " + std::to_string(root_pos.y) + ", " + std::to_string(root_pos.z) + ")"  + "\n";
-    //}
-    //else if (sys == system::venous) {
-    //    m_domain.get().m_logs += "rootPos venous : (" + std::to_string(root_pos.x) + ", " + std::to_string(root_pos.y) + ", " + std::to_string(root_pos.z) + ")"  + "\n";
-    //}
-    //m_domain.get().m_logs += "ici";
     for(const auto& attr_pair : attr_map)
     {
         auto* node = attr_pair.first;
@@ -484,17 +451,6 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
         {
             return dir + glm::normalize(att.m_pos - node->data().m_pos);
         });
-        //dir = glm::normalize(dir);
-
-        //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) {
-        //    const auto& repulsive_points = circle_domain->m_repulsive_points;
-        //    //circle_domain->m_logs = std::to_string(repulsive_points.size());
-        //    //circle_domain->m_logs = std::to_string(attr_list.size());
-        //    for (const auto& repulsive_point : repulsive_points) {
-        //        glm::vec3 repulsion_dir = glm::normalize(node->data().m_pos - repulsive_point);
-        //        dir += (repulsion_dir / (static_cast<float>(attr_list.size()) + static_cast<float>(repulsive_points.size())));  // Ajuster le coefficient pour calibrer la force de répulsion
-        //    }
-        //}
         dir = glm::normalize(dir);
 
         /* collect bias direction and detect if bifurcation development is preferred */
@@ -570,138 +526,102 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
             auto* tree = node->data().m_tree;
             bool crossed = false;
             if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) {
-                //for (auto& repulsive_point : circle_domain->m_repulsive_points) {
-                    const auto& repulsive_point = circle_domain->m_repulsive_points[0];
-                    //circle_domain->m_logs += "Repulsive points size : " + std::to_string(circle_domain->m_repulsive_points.size()) + "\n";
-                    glm::vec3 new_pos_l = node->data().m_pos + params.m_growth_distance * glm::normalize(left);
-                    glm::vec3 new_pos_r = node->data().m_pos + params.m_growth_distance * glm::normalize(right);
-            
-                    if (glm::length(new_pos_l - repulsive_point) < circle_domain->m_deadZoneRadius / 2 && glm::length(new_pos_r - repulsive_point) < circle_domain->m_deadZoneRadius / 2) {
+                const auto& repulsive_point = circle_domain->m_repulsive_points[0];
+                //circle_domain->m_logs += "Repulsive points size : " + std::to_string(circle_domain->m_repulsive_points.size()) + "\n";
+                glm::vec3 new_pos_l = node->data().m_pos + params.m_growth_distance * glm::normalize(left);
+                glm::vec3 new_pos_r = node->data().m_pos + params.m_growth_distance * glm::normalize(right);
+        
+                if (glm::length(new_pos_l - repulsive_point) < circle_domain->m_deadZoneRadius / 2 && glm::length(new_pos_r - repulsive_point) < circle_domain->m_deadZoneRadius / 2) {
+                    continue;
+                }
+
+                if (glm::length(new_pos_l - repulsive_point) < circle_domain->m_deadZoneRadius && glm::length(new_pos_r - repulsive_point) < circle_domain->m_deadZoneRadius) {
+                    float probability = 0.5f;
+                    if (random_probability(m_generator) < probability) {
                         continue;
                     }
+                }
 
-                    if (glm::length(new_pos_l - repulsive_point) < circle_domain->m_deadZoneRadius && glm::length(new_pos_r - repulsive_point) < circle_domain->m_deadZoneRadius) {
-                        float probability = 0.5f;
-                        if (random_probability(m_generator) < probability) {
-                            continue;
-                        }
-                    }
+                auto& forest = get_system_data(sys).m_forest;
+                glm::vec3 root_pos = forest.trees().front().get_root().data().m_pos;
 
-                    auto& forest = get_system_data(sys).m_forest;
-                    glm::vec3 root_pos = forest.trees().front().get_root().data().m_pos;
-                    //circle_domain->m_logs += "m_stepNoCrossing " + std::to_string(circle_domain->m_stepNoCrossing) + "\n";
-                    //circle_domain->m_logs += "m_params.m_curr_step " + std::to_string(m_params.m_curr_step) + "\n";
+                bool canAddLeft = false;
+                bool canAddRight = false;
+                if (m_params.m_curr_step > circle_domain->m_stepNoCrossing) {
 
-                    //if (sys == system::arterial) {
-                    //    circle_domain->m_logs += "newPosL arterial : (" + std::to_string(new_pos_l.x) + ", " + std::to_string(new_pos_l.y) + ", " + std::to_string(new_pos_l.z) + ")"  + "\n";
-                    //    circle_domain->m_logs += "newPosR arterial : (" + std::to_string(new_pos_r.x) + ", " + std::to_string(new_pos_r.y) + ", " + std::to_string(new_pos_r.z) + ")"  + "\n";
-                    //    }
-                    //    else if (sys == system::venous) {
-                    //        circle_domain->m_logs += "newPosL venous : (" + std::to_string(new_pos_l.x) + ", " + std::to_string(new_pos_l.y) + ", " + std::to_string(new_pos_l.z) + ")"  + "\n";
-                    //        circle_domain->m_logs += "newPosR venous : (" + std::to_string(new_pos_r.x) + ", " + std::to_string(new_pos_r.y) + ", " + std::to_string(new_pos_r.z) + ")"  + "\n";
-                    //    }
-
-                    bool canAddLeft = false;
-                    bool canAddRight = false;
-                    if (m_params.m_curr_step > circle_domain->m_stepNoCrossing) {
-
-                        if (sys == system::venous) {
-                            if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos_l)) {
-                                //canAddLeft = true;
-                                circle_domain->m_logs += " [PLV] [" + std::to_string(node->data().m_pos.x) + ", " + std::to_string(node->data().m_pos.y) + ", " + std::to_string(node->data().m_pos.z) + "]"  + "\n";
-                                circle_domain->m_logs += " [LV] [" + std::to_string(new_pos_l.x) + ", " + std::to_string(new_pos_l.y) + ", " + std::to_string(new_pos_l.z) + "]"  + "\n";
-                                circle_domain->m_crossingPointsBifurc.push_back(new_pos_l);
-                                new_pos_l = glm::vec3(new_pos_l.x, -new_pos_l.y, new_pos_l.z);
-                                circle_domain->m_logs += " [NLV] [" + std::to_string(new_pos_l.x) + ", " + std::to_string(new_pos_l.y) + ", " + std::to_string(new_pos_l.z) + "]"  + "\n";
-                                circle_domain->m_crossingPointsBifurcNew.push_back(new_pos_l);
-                                if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingVein) break;
-                                
-                            }
-
-                            if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos_r)) {
-                                //canAddRight = true;
-                                circle_domain->m_logs += " [PRV] [" + std::to_string(node->data().m_pos.x) + ", " + std::to_string(node->data().m_pos.y) + ", " + std::to_string(node->data().m_pos.z) + "]"  + "\n";
-                                circle_domain->m_logs += " [RV] [" + std::to_string(new_pos_r.x) + ", " + std::to_string(new_pos_r.y) + ", " + std::to_string(new_pos_r.z) + "]"  + "\n";
-                                circle_domain->m_crossingPointsBifurc.push_back(new_pos_r);
-
-                                new_pos_r = glm::vec3(new_pos_r.x, -new_pos_r.y, new_pos_r.z);
-                                circle_domain->m_logs += " [NRV] [" + std::to_string(new_pos_r.x) + ", " + std::to_string(new_pos_r.y) + ", " + std::to_string(new_pos_r.z) + "]"  + "\n";
-
-                                circle_domain->m_crossingPointsBifurcNew.push_back(new_pos_r);
-                                if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingVein) break;
-                                
-                            }
-                        }
-                        else {
-                            if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos_l)) {
-                                //circle_domain->m_crossingPoints.push_back(new_pos_l);
-
-                                new_pos_l = glm::vec3(new_pos_l.x, -new_pos_l.y, new_pos_l.z);
-                                if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingArtery) break;
-
-                            }
+                    if (sys == system::venous) {
+                        if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos_l)) {
+                            circle_domain->m_logs += " [PLV] [" + std::to_string(node->data().m_pos.x) + ", " + std::to_string(node->data().m_pos.y) + ", " + std::to_string(node->data().m_pos.z) + "]"  + "\n";
+                            circle_domain->m_logs += " [LV] [" + std::to_string(new_pos_l.x) + ", " + std::to_string(new_pos_l.y) + ", " + std::to_string(new_pos_l.z) + "]"  + "\n";
+                            circle_domain->m_crossingPointsBifurc.push_back(new_pos_l);
+                            new_pos_l = glm::vec3(new_pos_l.x, -new_pos_l.y, new_pos_l.z);
+                            circle_domain->m_logs += " [NLV] [" + std::to_string(new_pos_l.x) + ", " + std::to_string(new_pos_l.y) + ", " + std::to_string(new_pos_l.z) + "]"  + "\n";
+                            circle_domain->m_crossingPointsBifurcNew.push_back(new_pos_l);
+                            if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingVein) break;
                             
-                            
-                            if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos_r)) {
-                                new_pos_r = glm::vec3(new_pos_r.x, -new_pos_r.y, new_pos_r.z);
-                                if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingArtery) break;
-
-                            }
                         }
-                        //if (sys == system::venous) {
-                        //    if ((new_pos_l.y * node->data().m_pos.y >= 0) && (new_pos_r.y * node->data().m_pos.y >= 0)) {
-                        //    circle_domain->m_logs += "[" +std::to_string(m_params.m_curr_step) + "] ";
-                        //    circle_domain->m_logs += "Skipping from current pos : (" 
-                        //    + std::to_string(node->data().m_pos.x) + ", " 
-                        //    + std::to_string(node->data().m_pos.y) + ", " 
-                        //    + std::to_string(node->data().m_pos.z) + "), newPosL venous : (" + std::to_string(new_pos_l.x) + ", " + std::to_string(new_pos_l.y) + ", " + std::to_string(new_pos_l.z) + ")"  + "\n";
-                        //    circle_domain->m_logs += "And skipping from newPosR venous : (" + std::to_string(new_pos_r.x) + ", " + std::to_string(new_pos_r.y) + ", " + std::to_string(new_pos_r.z) + ")"  + "\n";
-                        //    }
-                        //}
 
-                        //break;
+                        if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos_r)) {
+                            circle_domain->m_logs += " [PRV] [" + std::to_string(node->data().m_pos.x) + ", " + std::to_string(node->data().m_pos.y) + ", " + std::to_string(node->data().m_pos.z) + "]"  + "\n";
+                            circle_domain->m_logs += " [RV] [" + std::to_string(new_pos_r.x) + ", " + std::to_string(new_pos_r.y) + ", " + std::to_string(new_pos_r.z) + "]"  + "\n";
+                            circle_domain->m_crossingPointsBifurc.push_back(new_pos_r);
+
+                            new_pos_r = glm::vec3(new_pos_r.x, -new_pos_r.y, new_pos_r.z);
+                            circle_domain->m_logs += " [NRV] [" + std::to_string(new_pos_r.x) + ", " + std::to_string(new_pos_r.y) + ", " + std::to_string(new_pos_r.z) + "]"  + "\n";
+
+                            circle_domain->m_crossingPointsBifurcNew.push_back(new_pos_r);
+                            if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingVein) break;
+                            
+                        }
                     }
                     else {
-                        canAddLeft = true;
-                        canAddRight = true;
-                    }
+                        if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos_l)) {
+                            //circle_domain->m_crossingPoints.push_back(new_pos_l);
 
-                        synthesizer::tree::node* end_l = nullptr;
-                        synthesizer::tree::node* end_r = nullptr;
+                            new_pos_l = glm::vec3(new_pos_l.x, -new_pos_l.y, new_pos_l.z);
+                            if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingArtery) break;
 
-                        //if (sys == system::arterial || (sys == system::venous && canAddLeft))
-                             end_l = &tree->create_node(node->id(), m_domain.get(), new_pos_l, radius_l, tree);
-                        //if (sys == system::arterial || (sys == system::venous && canAddRight))
-                            end_r = &tree->create_node(node->id(), m_domain.get(), new_pos_r, radius_r, tree);
-                        //auto& end_r = tree->create_node(node->id(), m_domain.get(), node->data().m_pos + params.m_growth_distance * glm::normalize(right), radius_r, tree);
-                        if (end_l != nullptr || end_r != nullptr) {
-                            auto recalc_radii = [&sett, tree] (auto& node)
-                            {
-                                if(node.is_inter())
-                                {
-                                    node.data().m_radius = tree->get_node(node.children()[0]).data().m_radius;
-                                }
-                                else if(node.is_joint())
-                                {
-                                    auto& child_0 = node.data().m_tree->get_node(node.children()[0]);
-                                    auto& child_1 = node.data().m_tree->get_node(node.children()[1]);
-
-                                    node.data().m_radius = law::murray_radius(child_0.data().m_radius, child_1.data().m_radius, sett.m_bif_index);
-                                }
-                            };
-                            tree->to_root(recalc_radii, node->id());
                         }
-                    
-                    //if (sys == system::arterial || (sys == system::venous && canAddLeft))
-                        data.m_node_search.insert(end_l->data().m_pos, end_l);
-                    //if (sys == system::arterial || (sys == system::venous && canAddRight))
-                        data.m_node_search.insert(end_r->data().m_pos, end_r);
+                        
+                        
+                        if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos_r)) {
+                            new_pos_r = glm::vec3(new_pos_r.x, -new_pos_r.y, new_pos_r.z);
+                            if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingArtery) break;
 
-                    //free(end_l);
-                    //free(end_r);
-                        //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Creating nodes end_l and end_r";
-                        //m_domain.get().m_logs += "ELSE Creating nodes end_l and end_r";
-                //}
+                        }
+                    }
+                }
+                else {
+                    canAddLeft = true;
+                    canAddRight = true;
+                }
+
+                    synthesizer::tree::node* end_l = nullptr;
+                    synthesizer::tree::node* end_r = nullptr;
+
+                            end_l = &tree->create_node(node->id(), m_domain.get(), new_pos_l, radius_l, tree);
+                        end_r = &tree->create_node(node->id(), m_domain.get(), new_pos_r, radius_r, tree);
+                    if (end_l != nullptr || end_r != nullptr) {
+                        auto recalc_radii = [&sett, tree] (auto& node)
+                        {
+                            if(node.is_inter())
+                            {
+                                node.data().m_radius = tree->get_node(node.children()[0]).data().m_radius;
+                            }
+                            else if(node.is_joint())
+                            {
+                                auto& child_0 = node.data().m_tree->get_node(node.children()[0]);
+                                auto& child_1 = node.data().m_tree->get_node(node.children()[1]);
+
+                                node.data().m_radius = law::murray_radius(child_0.data().m_radius, child_1.data().m_radius, sett.m_bif_index);
+                            }
+                        };
+                        tree->to_root(recalc_radii, node->id());
+                    }
+                
+                    data.m_node_search.insert(end_l->data().m_pos, end_l);
+                    data.m_node_search.insert(end_r->data().m_pos, end_r);
+
             }
             else {
                 auto& end_l = tree->create_node(node->id(), m_domain.get(), node->data().m_pos + params.m_growth_distance * glm::normalize(left), radius_l, tree);

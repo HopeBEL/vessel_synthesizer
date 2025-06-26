@@ -113,31 +113,6 @@ public:
     virtual glm::vec3 max_extends() const override;
 };
 
-/*struct domain_lines_half_sphere : public domain
-{
-private:
-    glm::vec3 m_center;
-    float m_radius;
-    std::vector<glm::vec3> m_start;
-    std::vector<glm::vec3> m_end;
-
-    float m_deviation;
-    glm::vec3 m_min;
-    glm::vec3 m_max;
-    std::mt19937 m_generator;
-    std::uniform_real_distribution<float> m_distribution;
-    std::uniform_real_distribution<float> m_uniform_distribution;
-    std::normal_distribution<float> m_normal_distribution;
-
-public:
-    domain_lines_half_sphere(const glm::vec3& center, float radius, const std::vector<glm::vec3>& start, const std::vector<glm::vec3>& end, float deviation);
-    ~domain_lines_half_sphere() = default;
-
-    void seed(unsigned int number = 42) override;
-    glm::vec3 sample() override;
-    virtual glm::vec3 min_extends() const override;
-    virtual glm::vec3 max_extends() const override;
-};*/
 
 /*
  * ******************** [line domain] ********************
