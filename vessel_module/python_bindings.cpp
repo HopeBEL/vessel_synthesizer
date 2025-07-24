@@ -168,7 +168,7 @@ PYBIND11_MODULE(vessel_module, m)
             .def("is_inter", &vs_node::is_inter)
             .def("is_leaf", &vs_node::is_leaf)
             .def("is_joint", &vs_node::is_joint);
-
+    
     /****************************************************
      *                    Vessel Tree                   *
      ****************************************************/
@@ -179,7 +179,7 @@ PYBIND11_MODULE(vessel_module, m)
             .def("create_node", &vs_tree::create_node<>, py::return_value_policy::reference)
             .def("delete_node", &vs_tree::delete_node)
             .def("get_root", static_cast<vs_node& (vs_tree::*)()>(&vs_tree::get_root), py::return_value_policy::reference)
-            .def("get_node", static_cast<vs_node& (vs_tree::*)()>(&vs_tree::get_root), py::return_value_policy::reference)
+            .def("get_node", static_cast<vs_node& (vs_tree::*)(vs::node_id)>(&vs_tree::get_node), py::return_value_policy::reference)
             .def("node_map", static_cast<const std::unordered_map<vs::node_id, vs_node>& (vs_tree::*)() const>(&vs_tree::get_all_nodes))
             .def("size", &vs_tree::size)
             .def("breadth_first", [](vs_tree& self, const std::function<void(vs_node&)>& func) { self.breadth_first(func); })
@@ -304,5 +304,7 @@ PYBIND11_MODULE(vessel_module, m)
      ****************************************************/
     py::class_<vs::prf::monitor>(m, "PerfMonitor")
             .def_readonly_static("Enabled", &vs::prf::monitor::is_enabled);
+
+    m.attr("not_a_node") = vs::not_a_node;
 
 }

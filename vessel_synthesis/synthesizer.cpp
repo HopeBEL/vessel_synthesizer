@@ -642,8 +642,7 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                 tree->to_root(recalc_radii, node->id());
                 data.m_node_search.insert(end_l.data().m_pos, &end_l);
                 data.m_node_search.insert(end_r.data().m_pos, &end_r);
-                //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Creating nodes end_l and end_r";
-                //m_domain.get().m_logs += "Creating nodes end_l and end_r";
+             
                 m_domain.get().m_logs += "ELSE Creating nodes end_l and end_r";
 
             }
@@ -651,7 +650,6 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
         /* elongate from a leaf or develop a new lateral sprout */
         else if( !sett.m_only_leaf_development || (node->is_leaf() || node->is_inter()) )
         {
-            //if(node->is_root() && node->is_inter()) { continue; } // TODO: currently force root to only have one child
             if (node->is_root() && m_params.m_curr_step <= 1005) {
                 auto* tree = node->data().m_tree;
 
@@ -691,12 +689,8 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                 for (int i = 0; i < 4; i++) {
                     if (node->children()[i] != not_a_node) {
                         childrenCount++;
-                        //m_domain.get().m_logs += "Child id " + std::to_string(i) + " : " + std::to_string(node->children()[i]) + "\n"; 
                     }
                 }
-                //m_domain.get().m_logs += "Added this number of nodes to root : " + std::to_string(childrenCount) + "\n";
-
-
             }
 
             profile_sample(growth_sprout, data.m_profiler);
@@ -724,32 +718,12 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                         
                         auto& forest = get_system_data(sys).m_forest;
                         glm::vec3 root_pos = forest.trees().front().get_root().data().m_pos;
-                        //circle_domain->m_logs += "m_stepNoCrossing single " + std::to_string(circle_domain->m_stepNoCrossing) + "\n";
-
-                        //if (sys == system::arterial) {
-                        //circle_domain->m_logs += "newPos arterial : (" + std::to_string(new_pos.x) + ", " + std::to_string(new_pos.y) + ", " + std::to_string(new_pos.z) + ")"  + "\n";
-                        //}
-                        //else if (sys == system::venous) {
-                        //    circle_domain->m_logs += "newPos venous : (" + std::to_string(new_pos.x) + ", " + std::to_string(new_pos.y) + ", " + std::to_string(new_pos.z) + ")"  + "\n";
-                        //}
+                      
 
                         if (m_params.m_curr_step > circle_domain->m_stepNoCrossing) {
 
                             if (sys == system::arterial && crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos)) {
-                            //if (sys == system::arterial) {
-                            //    circle_domain->m_logs += "Crossed the line arterial \n";
-                            //}
-                            //else if (sys == system::venous) {
-                            //    circle_domain->m_logs += "Crossed the line venous \n";
-                            //}
-                            //crossed = true;
-                            //if (new_pos.y * node->data().m_pos.y >= 0) {
-                            //    circle_domain->m_logs += "[" + std::to_string(m_params.m_curr_step) + "] ";
-                            //    circle_domain->m_logs += "Skipping from current pos : (" 
-                            //    + std::to_string(node->data().m_pos.x) + ", " 
-                            //    + std::to_string(node->data().m_pos.y) + ", " 
-                            //    + std::to_string(node->data().m_pos.z) + "), to newPos venous : (" + std::to_string(new_pos.x) + ", " + std::to_string(new_pos.y) + ", " + std::to_string(new_pos.z) + ")"  + "\n";
-                            //}
+                    
                                 new_pos = glm::vec3(new_pos.x, - new_pos.y, new_pos.z);
 
                                 if (m_params.m_curr_step > circle_domain->m_stepBreakCrossingArtery) break;
@@ -766,11 +740,7 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
 
                             }
                         }
-                        //auto& forest = get_system_data(system::arterial).m_forest;
-                        //glm::vec3 root_pos = forest.trees().front().get_root().data().m_pos;
-                        //if (crossesTheLine(root_pos, repulsive_point, node->data().m_pos, new_pos)) {
-                        //    return;
-                        //}
+       
                             //circle_domain->m_logs += " + Doing this right now " + std::to_string(i);
                             i++;
                             auto& end = tree->create_node(node->id(), m_domain.get(), new_pos, sett.m_term_radius, tree);
@@ -792,9 +762,6 @@ void synthesizer::step_growth(const system sys, std::map<tree::node *, std::list
                             tree->to_root(recalc_radii, node->id());
 
                             data.m_node_search.insert(end.data().m_pos, &end);
-                            //if (auto* circle_domain = dynamic_cast<domain_circle*>(&m_domain.get())) circle_domain->m_logs += "Creating node end";
-                            //m_domain.get().m_logs += "Creating nodes end_l and end_r";
-                    //}
                 }
             }
             else {
